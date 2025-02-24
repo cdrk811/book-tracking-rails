@@ -38,3 +38,33 @@ categories_data.each do |category_genre|
   puts "find or create category genre id: #{object.id},
                               name: #{object.name}"
 end
+
+# generate books data
+books_data = [
+  { title: 'Book 1', description: 'This is book 1', book_image: 'book1.jpg', author_avatar: 'author1.jpg', author_name: 'Author 1', pages: '200', categories: ['Science Fiction', 'Adventure'] },
+  { title: 'Book 2', description: 'This is book 2', book_image: 'book2.jpg', author_avatar: 'author2.jpg', author_name: 'Author 2', pages: '230', categories: ['History', 'Travel'] }
+]
+
+books_data.each do |book_data|
+  book = Book.where(title: book_data[:title]).first_or_initialize
+  book.description = book_data[:description]
+  book.book_image = book_data[:book_image]
+  book.author_avatar = book_data[:author_avatar]
+  book.author_name = book_data[:author_name]
+  book.pages = book_data[:pages]
+  book.save
+
+  # Associate categories (Many-to-Many)
+  book_data[:categories].each do |category_name|
+    category = Category.find_by(name: category_name)
+    book.categories << category if category && !book.categories.include?(category)
+  end
+
+  puts "find or create book id: #{book.id},
+                            title: #{book.title},
+                            description: #{book.description},
+                            author_name: #{book.author_name},
+                            pages: #{book.pages}"
+
+  puts "create or update Categories: #{book.categories.pluck(:name).join(', ')}"
+end

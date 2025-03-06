@@ -6,6 +6,8 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable,
          :jwt_authenticatable, jwt_revocation_strategy: self
 
+  has_many :books
+
   before_validation :normalize_username
 
   validates :username, uniqueness: { case_sensitive: false }, allow_nil: true

@@ -1,5 +1,23 @@
 # frozen_string_literal: true
 
+# generate_users
+users_data = [
+  { email: 'cedrick@friendly.com', password: BCrypt::Password.create('qwer4321'), username: 'cdrk' },
+  { email: 'elai@friendly.com', password: BCrypt::Password.create('qwer4321'), username: 'elai' },
+  { email: 'marco@friendly.com', password: BCrypt::Password.create('qwer4321'), username: 'marco' },
+  { email: 'nard@friendly.com', password: BCrypt::Password.create('qwer4321'), username: 'nard' },
+]
+
+users_data.each do |user|
+  object = User.find_or_initialize_by(email: user[:email])
+  object.encrypted_password = user[:password]
+  object.username = user[:username]
+  object.save(validate: false)
+  puts "find or create user id: #{object.id},
+                            email: #{object.email},
+                            username: #{object[:username]}"
+end
+
 # generate_categories
 categories_data = [
   { name: 'Fantasy', description: 'Magic, mythical creatures, and supernatural elements' },
@@ -41,8 +59,8 @@ end
 
 # generate books data
 books_data = [
-  { title: 'Book 1', description: 'This is book 1', book_image: 'book1.jpg', author_avatar: 'author1.jpg', author_name: 'Author 1', pages: '200', categories: ['Science Fiction', 'Adventure'] },
-  { title: 'Book 2', description: 'This is book 2', book_image: 'book2.jpg', author_avatar: 'author2.jpg', author_name: 'Author 2', pages: '230', categories: ['History', 'Travel'] }
+  { title: 'Book 1', description: 'This is book 1', book_image: 'book1.jpg', author_avatar: 'author1.jpg', author_name: 'Author 1', pages: '200', categories: ['Science Fiction', 'Adventure'], username: 'cdrk' },
+  { title: 'Book 2', description: 'This is book 2', book_image: 'book2.jpg', author_avatar: 'author2.jpg', author_name: 'Author 2', pages: '230', categories: ['History', 'Travel'], username: 'elai' }
 ]
 
 books_data.each do |book_data|
@@ -52,6 +70,7 @@ books_data.each do |book_data|
   book.author_avatar = book_data[:author_avatar]
   book.author_name = book_data[:author_name]
   book.pages = book_data[:pages]
+  book.user = User.find_by(username: book_data[:username])
   book.save
 
   # Associate categories (Many-to-Many)

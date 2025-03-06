@@ -3,6 +3,7 @@
 module Api
   module V1
     class BooksController < ApiController
+      before_action :authenticate_user!, only: %i[create update]
       before_action :set_book, only: %i[show update]
 
       # GET /api/v1/books
@@ -19,7 +20,7 @@ module Api
 
       # POST /api/v1/books
       def create
-        @book = Book.new(book_params)
+        @book = current_user.books.build(book_params)
         assign_categories(@book, params[:category_ids], append: true)
 
         if @book.save

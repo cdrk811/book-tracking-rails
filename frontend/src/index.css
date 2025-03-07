@@ -1,3 +1,80 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*Global Styles*/
+body {
+    @apply bg-no-repeat bg-cover bg-center min-h-screen;
+    background-image: url("/books-bg.jpg");
+    color: #ffffff;
+}
+
+/* ✅ Make entire dropdown dark */
+.react-tel-input .country-list {
+    background-color: #1f2937 !important; /* Dark gray */
+    border: 1px solid #374151 !important; /* Subtle border */
+}
+
+/* ✅ Ensure each country item has white text */
+.react-tel-input .country-list .country {
+    color: white !important;
+    background-color: #1f2937 !important; /* Dark background */
+}
+
+/* ✅ Fix white flash when hovering over a country */
+.react-tel-input .country-list .country:hover {
+    background-color: #374151 !important; /* Darker gray */
+}
+
+/* ✅ Ensure the search box has a dark background */
+.react-tel-input .country-list .search {
+    background-color: #1f2937 !important;
+    color: black !important;
+}
+
+/* ✅ Fix search input text and border */
+.react-tel-input .country-list .search-box input {
+    background-color: #1f2937 !important; /* Dark search box */
+    color: white !important; /* White text */
+    border: 1px solid #374151 !important; /* Subtle border */
+}
+
+/* ✅ Ensure placeholder text in search box is visible */
+.react-tel-input .country-list .search-box input::placeholder {
+    color: #9ca3af !important; /* Light gray */
+}
+
+/* ✅ Ensure the selected flag dropdown is dark */
+.react-tel-input .selected-flag {
+    background-color: #1f2937 !important; /* Dark */
+    color: white !important; /* White text */
+}
+
+/* ✅ Ensure the input field itself is dark */
+.react-tel-input .form-control {
+    background-color: #1f2937 !important; /* Dark input */
+    color: white !important; /* White text */
+    border: none !important;
+}
+
+/* ✅ Fix placeholder text in input field */
+.react-tel-input .form-control::placeholder {
+    color: #9ca3af !important; /* Light gray */
+}
+
+/* ✅ Remove white border when input is focused */
+.react-tel-input .form-control:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.react-tel-input .flag-dropdown,
+.react-tel-input .selected-flag {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+.react-tel-input .flag-dropdown:hover,
+.react-tel-input .selected-flag:hover {
+    background-color: transparent !important;
+}

@@ -1,5 +1,6 @@
-import {Sidebar, SidebarItem} from "./components/Sidebar";
+import Sidebar from "./components/Sidebar";
 import { LifeBuoy, Receipt, Boxes, Package, UserCircle, BarChart3, LayoutDashboard, Settings } from "lucide-react";
+import SidebarItem from "./components/SidebarItem";
 
 function App() {
   return (

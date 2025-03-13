@@ -2,10 +2,10 @@
 
 # generate_users
 users_data = [
-  { email: 'cedrick@friendly.com', password: BCrypt::Password.create('qwer4321'), username: 'cdrk' },
-  { email: 'elai@friendly.com', password: BCrypt::Password.create('qwer4321'), username: 'elai' },
-  { email: 'marco@friendly.com', password: BCrypt::Password.create('qwer4321'), username: 'marco' },
-  { email: 'nard@friendly.com', password: BCrypt::Password.create('qwer4321'), username: 'nard' },
+  { email: 'cedrick@friendly.com', password: '@Qwer4321', username: 'cdrk' },
+  { email: 'elai@friendly.com', password: '@Qwer4321', username: 'elai' },
+  { email: 'marco@friendly.com', password: '@Qwer4321', username: 'marco' },
+  { email: 'nard@friendly.com', password: '@Qwer4321', username: 'nard' },
 ]
 
 users_data.each do |user|

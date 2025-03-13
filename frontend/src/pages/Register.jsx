@@ -1,8 +1,9 @@
 import Logo from '../assets/Book-Tracking-logo.png';
 import { Mail, Eye, Fingerprint, EyeOff, User } from "lucide-react";
 import {useState} from "react";
-import {Link} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { validateUsername, validateEmail, validatePassword } from "../utilities/validations.js";
+import { registerAPI } from '../apis/authentication.js';
 
 const InitialErrorState = {
     username: '',
@@ -13,6 +14,7 @@ const InitialErrorState = {
 }
 
 const Register = () => {
+    const navigate = useNavigate();
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('');
@@ -36,13 +38,11 @@ const Register = () => {
     };
 
     const handleEmailChange = (e) => {
-        const inputEmail = e.target.value
+        const inputEmail = e.target.value.trim()
         setEmail(inputEmail)
 
-        setErrors({
-            ...errors,
-            email: !validateEmail(inputEmail) ? "Invalid email format" : ""
-        });
+        const errorMessage = validateEmail(inputEmail);
+        setErrors({ ...errors, email: errorMessage });
     }
 
     const handlePasswordChange = (e) => {
@@ -71,10 +71,39 @@ const Register = () => {
         });
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        console.log(e.target)
-        // Make API Call
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const newErrors = {
+            email: validateEmail(email),
+            username: validateUsername(username) || "",
+            password: validatePassword(password),
+            confirmPassword: confirmPassword !== password ? "Passwords do not match" : ""
+        };
+
+        setErrors(newErrors);
+
+        // Ensure there are no errors before making API request
+        if (Object.values(newErrors).some(error => Array.isArray(error) ? error.length > 0 : Boolean(error))) {
+            console.log("Form has errors:", newErrors);
+            return;
+        }
+
+        // Call Register API
+        const [result, error] = await registerAPI({
+            user: { username, email, password }
+        });
+
+        console.log('Result:', result)
+
+        if (error) {
+            setErrors({ ...errors, api: error });
+        } else {
+            const message = result.message;
+            const data = result.data;
+
+            navigate('/');
+        }
     }
 
     return (
@@ -87,6 +116,12 @@ const Register = () => {
                     Already have an account?&nbsp;
                     <Link to="/sign_in" className="text-white">Sign In</Link>
                 </p>
+
+                {errors.api &&
+                    <li className="italic text-sm ">
+                        <span className="text-red-600">{errors.api}</span>
+                    </li>
+                }
 
                 <form onSubmit={handleSubmit} className="w-full flex flex-col gap-3">
                     <div className="w-full flex flex-col gap-3">
@@ -117,7 +152,7 @@ const Register = () => {
                             />
                         </div>
                         {errors.email &&
-                            <li className="italic text-sm ">
+                            <li className="italic text-sm">
                                 <span className="text-red-600">{errors.email}</span>
                             </li>
                         }

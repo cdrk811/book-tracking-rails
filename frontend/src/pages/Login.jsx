@@ -1,8 +1,9 @@
 import Logo from '../assets/Book-Tracking-logo.png';
 import { Mail, Eye, Fingerprint, EyeOff } from "lucide-react";
 import {useState} from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { validateEmail, validatePassword } from "../utilities/validations.js";
+import { loginAPI } from '../apis/authentication.js';
 
 import Gmail from '/gmail-logo.svg';
 import Facebook from '/fb-logo.svg';
@@ -14,6 +15,7 @@ const InitialErrorState = {
 }
 
 const Login = () => {
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -25,10 +27,8 @@ const Login = () => {
         const inputEmail = e.target.value
         setEmail(inputEmail)
 
-        setErrors({
-            ...errors,
-            email: !validateEmail(inputEmail) ? "Invalid email format" : ""
-        });
+        const errorMessage = validateEmail(inputEmail);
+        setErrors({ ...errors, email: errorMessage });
     }
 
     const handlePasswordChange = (e) => {
@@ -42,10 +42,37 @@ const Login = () => {
         });
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
 
-        // Make API Call
+        const newErrors = {
+            email: validateEmail(email),
+            password: validatePassword(password)
+        };
+
+        setErrors(newErrors);
+
+        // Ensure there are no errors before making API request
+        if (Object.values(newErrors).some(error => Array.isArray(error) ? error.length > 0 : Boolean(error))) {
+            console.log("Form has errors:", newErrors);
+            return;
+        }
+
+        // Call Register API
+        const [result, error] = await loginAPI({
+            user: { email, password }
+        });
+
+        console.log('Result:', result)
+
+        if (error) {
+            setErrors({ ...errors, api: error });
+        } else {
+            const message = result.message;
+            const data = result.data;
+
+            navigate('/');
+        }
     }
     
     return (
@@ -58,6 +85,13 @@ const Login = () => {
                     Don't have an account?&nbsp;
                     <Link to="/sign_up" className="text-white">Sign Up</Link>
                 </p>
+
+                {errors.api &&
+                    <p className="italic text-sm ">
+                        <span className="text-red-600">{errors.api}</span>
+                    </p>
+                }
+
                 <form onSubmit={handleSubmit} className="w-full flex flex-col gap-3">
                     <div className="w-full flex flex-col gap-3">
                         <div className="w-full flex items-center bg-gray-800 p-2 rounded-xl gap-2">

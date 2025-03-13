@@ -1,21 +1,81 @@
 import Logo from '../assets/Book-Tracking-logo.png';
-import { Mail, Eye, Fingerprint, EyeOff, User, UploadCloud } from "lucide-react";
+import { Mail, Eye, Fingerprint, EyeOff, User } from "lucide-react";
 import {useState} from "react";
 import {Link} from "react-router-dom";
-import PhoneInput from 'react-phone-input-2'
-import 'react-phone-input-2/lib/style.css'
+import { validateUsername, validateEmail, validatePassword } from "../utilities/validations.js";
+
+const InitialErrorState = {
+    username: '',
+    email: '',
+    password: [],
+    confirmPassword: '',
+    api: ''
+}
 
 const Register = () => {
+    const [username, setUsername] = useState('')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState("");
+
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [avatar, setAvatar] = useState(null);
+    const [errors, setErrors] = useState(InitialErrorState);
+
     const togglePasswordVisibility = () => setShowPassword(!showPassword);
     const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
 
-    const handleAvatarChange = (event) => {
-        const file = event.target.files[0];
-        setAvatar(file ? file.name : null);
+    const handleUsernameChange = (e) => {
+        const inputUsername = e.target.value;
+        setUsername(inputUsername);
+
+        setErrors({
+            ...errors,
+            username: validateUsername(inputUsername)
+        });
     };
+
+    const handleEmailChange = (e) => {
+        const inputEmail = e.target.value
+        setEmail(inputEmail)
+
+        setErrors({
+            ...errors,
+            email: !validateEmail(inputEmail) ? "Invalid email format" : ""
+        });
+    }
+
+    const handlePasswordChange = (e) => {
+        const inputPassword = e.target.value
+        setPassword(inputPassword)
+
+        const validationErrors = validatePassword(inputPassword);
+        setErrors({
+            ...errors,
+            password: validationErrors,
+            confirmPassword: confirmPassword && confirmPassword !== inputPassword
+                ? "Passwords do not match"
+                : ""
+        });
+    }
+
+    const handleConfirmPasswordChange = (e) => {
+        const inputConfirmPassword = e.target.value;
+        setConfirmPassword(inputConfirmPassword);
+
+        setErrors({
+            ...errors,
+            confirmPassword: inputConfirmPassword !== password
+                ? "Passwords do not match"
+                : ""
+        });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        console.log(e.target)
+        // Make API Call
+    }
 
     return (
         <div className="w-full h-screen flex items-center justify-center">
@@ -28,87 +88,94 @@ const Register = () => {
                     <Link to="/sign_in" className="text-white">Sign In</Link>
                 </p>
 
-                <div className="w-full flex flex-col gap-3">
-                    <div className="w-full flex items-center bg-gray-800 p-2 rounded-xl gap-2">
-                        <User size={20} />
-                        <input type="text"
-                               placeholder="Fullname"
-                               className="bg-transparent border-0 w-full outline-none text-sm md:text-base" />
-                    </div>
+                <form onSubmit={handleSubmit} className="w-full flex flex-col gap-3">
+                    <div className="w-full flex flex-col gap-3">
+                        <div className="w-full flex items-center bg-gray-800 p-2 rounded-xl gap-2">
+                            <User size={20} />
+                            <input name="username"
+                                   type="text"
+                                   placeholder="Username"
+                                   className="bg-transparent border-0 w-full outline-none text-sm md:text-base"
+                                   value={username}
+                                   onChange={handleUsernameChange}
+                            />
+                        </div>
+                        {errors.username &&
+                            <li className="italic text-sm ">
+                                <span className="text-red-600">{errors.username}</span>
+                            </li>
+                        }
 
-                    <div className="w-full flex items-center bg-gray-800 p-2 rounded-xl gap-2">
-                        <User size={20} />
-                        <input type="text"
-                               placeholder="Username"
-                               className="bg-transparent border-0 w-full outline-none text-sm md:text-base" />
-                    </div>
+                        <div className="w-full flex items-center bg-gray-800 p-2 rounded-xl gap-2">
+                            <Mail size={20} />
+                            <input name="email"
+                                   type="email"
+                                   placeholder="Email"
+                                   className="bg-transparent border-0 w-full outline-none text-sm md:text-base"
+                                   value={email ?? ""}
+                                   onChange={handleEmailChange}
+                            />
+                        </div>
+                        {errors.email &&
+                            <li className="italic text-sm ">
+                                <span className="text-red-600">{errors.email}</span>
+                            </li>
+                        }
 
-                    <div className="w-full flex items-center bg-gray-800 p-2 rounded-xl gap-2">
-                        {/*<Phone size={20} />*/}
-                        <PhoneInput
-                            country={'ph'}
-                            enableSearch
-                            placeholder="Contact Number"
-                            pattern="[0-9]{10,15}"
-                            inputClass="!bg-transparent !border-0 !w-full !outline-none !text-white !text-sm md:!text-base"
-                            containerClass="!w-full"
-                            buttonClass="!border-0 !bg-transparent hover:!bg-transparent focus:!bg-transparent"
-                        />
-                    </div>
+                        <div className="w-full flex items-center bg-gray-800 p-2 rounded-xl gap-2">
+                            <Fingerprint size={20} />
+                            <input name="password"
+                                   type={showPassword ? "text" : "password"}
+                                   placeholder="Password"
+                                   className="bg-transparent border-0 w-full outline-none text-sm md:text-base"
+                                   value={password ?? ""}
+                                   onChange={handlePasswordChange}
+                            />
 
-                    <div className="w-full flex items-center bg-gray-800 p-2 rounded-xl gap-2">
-                        <Mail size={20} />
-                        <input type="email"
-                               placeholder="Email"
-                               className="bg-transparent border-0 w-full outline-none text-sm md:text-base" />
-                    </div>
+                            {showPassword ?
+                                <EyeOff size={20} className="right-5 cursor-pointer" onClick={togglePasswordVisibility}/>
+                                :
+                                <Eye size={20} className="right-5 cursor-pointer" onClick={togglePasswordVisibility} />
+                            }
+                        </div>
+                        {errors.password.length > 0 && (
+                            <div>
+                                {errors.password.map((error, index) => (
+                                    <li className="italic text-sm" key={index}>
+                                        <span className="text-red-600">{error}</span>
+                                    </li>
+                                ))}
+                            </div>
+                        )}
 
-                    <div className="w-full flex items-center bg-gray-800 p-2 rounded-xl gap-2">
-                        <Fingerprint size={20} />
-                        <input type={showPassword ? "text" : "password"}
-                               placeholder="Password"
-                               className="bg-transparent border-0 w-full outline-none text-sm md:text-base" />
+                        <div className="w-full flex items-center bg-gray-800 p-2 rounded-xl gap-2">
+                            <Fingerprint size={20} />
+                            <input name="confirm-password"
+                                   type={showConfirmPassword ? "text" : "password"}
+                                   placeholder="Confirm Password"
+                                   className="bg-transparent border-0 w-full outline-none text-sm md:text-base"
+                                   value={confirmPassword ?? ""}
+                                   onChange={handleConfirmPasswordChange}
+                            />
 
-                        {showPassword ?
-                            <EyeOff size={20} className="right-5 cursor-pointer" onClick={togglePasswordVisibility}/>
-                            :
-                            <Eye size={20} className="right-5 cursor-pointer" onClick={togglePasswordVisibility} />
+                            {showConfirmPassword ?
+                                <EyeOff size={20} className="right-5 cursor-pointer" onClick={toggleConfirmPasswordVisibility}/>
+                                :
+                                <Eye size={20} className="right-5 cursor-pointer" onClick={toggleConfirmPasswordVisibility} />
+                            }
+                        </div>
+                        {errors.confirmPassword &&
+                            <li className="italic text-sm ">
+                                <span className="text-red-600">{errors.confirmPassword}</span>
+                            </li>
                         }
                     </div>
 
-                    <div className="w-full flex items-center bg-gray-800 p-2 rounded-xl gap-2">
-                        <Fingerprint size={20} />
-                        <input type={showConfirmPassword ? "text" : "password"}
-                               placeholder="Confirm Password"
-                               className="bg-transparent border-0 w-full outline-none text-sm md:text-base" />
-
-                        {showConfirmPassword ?
-                            <EyeOff size={20} className="right-5 cursor-pointer" onClick={toggleConfirmPasswordVisibility}/>
-                            :
-                            <Eye size={20} className="right-5 cursor-pointer" onClick={toggleConfirmPasswordVisibility} />
-                        }
-                    </div>
-
-                    <div className="w-full flex items-center bg-gray-800 p-2 rounded-xl gap-2">
-                        <UploadCloud size={20} />
-                        <label
-                            htmlFor="file-upload"
-                            className="bg-transparent border-0 w-full outline-none text-sm md:text-base text-white cursor-pointer"
-                        >
-                            {avatar ? avatar : "Upload File"}
-                        </label>
-                        <input
-                            id="file-upload"
-                            type="file"
-                            className="hidden"
-                            onChange={handleAvatarChange}
-                        />
-                    </div>
-                </div>
-
-                <button className="w-full p-2 bg-blue-500 rounded-xl mt-3 hover:to-blue-600 text-sm md:text-base">
-                    Sign Up
-                </button>
+                    <button type="submit"
+                            className="w-full p-2 bg-blue-500 rounded-xl mt-3 hover:to-blue-600 text-sm md:text-base">
+                        Sign Up
+                    </button>
+                </form>
 
                 <span className="pb-2"></span>
             </div>

@@ -1,9 +1,10 @@
 import Logo from '../assets/Book-Tracking-logo.png';
 import { Mail, Eye, Fingerprint, EyeOff } from "lucide-react";
-import {useState} from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {useEffect, useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
 import { validateEmail, validatePassword } from "../utilities/validations.js";
 import { loginAPI } from '../apis/authentication.js';
+import useAuth from "../hooks/useAuth";
 
 import Gmail from '/gmail-logo.svg';
 import Facebook from '/fb-logo.svg';
@@ -15,11 +16,18 @@ const InitialErrorState = {
 }
 
 const Login = () => {
+    const { user, handleAuth } = useAuth();
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState(InitialErrorState);
+
+    useEffect(() => {
+        if (user) {
+            navigate('/');
+        }
+    }, [user, navigate]);
 
     const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
@@ -59,20 +67,7 @@ const Login = () => {
         }
 
         // Call Register API
-        const [result, error] = await loginAPI({
-            user: { email, password }
-        });
-
-        console.log('Result:', result)
-
-        if (error) {
-            setErrors({ ...errors, api: error });
-        } else {
-            const message = result.message;
-            const data = result.data;
-
-            navigate('/');
-        }
+        await handleAuth(loginAPI, {user: {email, password}}, setErrors)
     }
     
     return (

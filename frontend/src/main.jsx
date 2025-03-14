@@ -6,24 +6,25 @@ import App from './App.jsx'
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import { CookiesProvider } from "react-cookie";
+import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <App />,
+        element: <ProtectedRoute />,
+        children: [
+            { path: "/", element: <App /> }
+        ]
     },
-    {
-        path: "/sign_in",
-        element: <Login />,
-    },
-    {
-        path: "/sign_up",
-        element: <Register />,
-    },
+    { path: "/sign_in", element: <Login /> },
+    { path: "/sign_up", element: <Register /> },
 ]);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-      <RouterProvider router={router} />
+      <CookiesProvider defaultSetOptions={{ path: '/' }}>
+          <RouterProvider router={router} />
+      </CookiesProvider>
   </StrictMode>,
 )

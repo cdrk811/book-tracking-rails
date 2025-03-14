@@ -1,9 +1,10 @@
 import Logo from '../assets/Book-Tracking-logo.png';
 import { Mail, Eye, Fingerprint, EyeOff, User } from "lucide-react";
-import {useState} from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {useEffect, useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
 import { validateUsername, validateEmail, validatePassword } from "../utilities/validations.js";
 import { registerAPI } from '../apis/authentication.js';
+import useAuth from "../hooks/useAuth";
 
 const InitialErrorState = {
     username: '',
@@ -14,6 +15,7 @@ const InitialErrorState = {
 }
 
 const Register = () => {
+    const { user, handleAuth } = useAuth();
     const navigate = useNavigate();
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
@@ -23,6 +25,12 @@ const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState(InitialErrorState);
+
+    useEffect(() => {
+        if (user) {
+            navigate('/');
+        }
+    }, [user, navigate]);
 
     const togglePasswordVisibility = () => setShowPassword(!showPassword);
     const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
@@ -90,20 +98,7 @@ const Register = () => {
         }
 
         // Call Register API
-        const [result, error] = await registerAPI({
-            user: { username, email, password }
-        });
-
-        console.log('Result:', result)
-
-        if (error) {
-            setErrors({ ...errors, api: error });
-        } else {
-            const message = result.message;
-            const data = result.data;
-
-            navigate('/');
-        }
+        await handleAuth(registerAPI, { user: { username, email, password } }, setErrors)
     }
 
     return (

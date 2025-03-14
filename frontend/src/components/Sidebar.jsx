@@ -5,7 +5,7 @@ import Logo from '../assets/Book-Tracking-logo.png';
 
 export const SidebarContext = createContext()
 
-const Sidebar = ({ children }) => {
+const Sidebar = ({ children, user }) => {
     const [expanded, setExpanded] = useState(true)
 
     return (
@@ -41,8 +41,8 @@ const Sidebar = ({ children }) => {
                     `}
                     >
                         <div className="leading-4">
-                            <h4 className="font-semibold">John Doe</h4>
-                            <span className="text-xs text-gray-600">johndoe@gmail.com</span>
+                            <h4 className="font-semibold">{user?.username || 'John Doe'}</h4>
+                            <span className="text-xs text-gray-600">{user?.email || 'johndoe@gmail.com'}</span>
                         </div>
                         <MoreVertical size={20}  />
                     </div>
